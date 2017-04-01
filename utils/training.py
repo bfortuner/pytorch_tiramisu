@@ -40,7 +40,7 @@ def load_weights(model, fpath):
                   weights['error']))
     return startEpoch
   
-def train(epoch, net, trainLoader, optimizer, trainF, sessionName=None):
+def train(epoch, net, trainLoader, optimizer, trainF, sessionName=get_rand_str(5)):
     net.train()
     nProcessed = 0
     nTrain = len(trainLoader.dataset)
