@@ -6,5 +6,5 @@ results/*
 !/results/donotdelete.txt
 data/*
 !/data/donotdelete.txt
-weights/*
-!/weights/donotdelete.txt
+models/*
+!/models/donotdelete.txt

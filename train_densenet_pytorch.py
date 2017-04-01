@@ -30,7 +30,7 @@ import make_graph
 DATA_PATH='data/'
 CIFAR10_PATH=DATA_PATH+'cifar10/'
 RESULTS_PATH='results/'
-WEIGHTS_PATH='weights/'
+WEIGHTS_PATH='models/'
 
 def get_rand_str(n):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
@@ -52,8 +52,8 @@ def load_weights(model, fpath):
     weights = torch.load(fpath)
     startEpoch = weights['startEpoch']
     model.load_state_dict(weights['state_dict'])
-    print("loaded weights from session {} (startEpoch {}, loss {}, error {})"
-          .format(weights['sessionName'], startEpoch, weights['loss'], 
+    print("loaded weights from session {} (lastEpoch {}, loss {}, error {})"
+          .format(weights['sessionName'], startEpoch-1, weights['loss'], 
                   weights['error']))
     return startEpoch
     
@@ -83,9 +83,9 @@ def main():
     if args.cuda:
         torch.cuda.manual_seed(args.seed)
 
-    if os.path.exists(args.save):
-        shutil.rmtree(args.save)
-    os.makedirs(args.save, exist_ok=True)
+#    if os.path.exists(args.save):
+#        shutil.rmtree(args.save)
+#    os.makedirs(args.save, exist_ok=True)
 
     normMean = [0.49139968, 0.48215827, 0.44653124]
     normStd = [0.24703233, 0.24348505, 0.26158768]
@@ -121,13 +121,15 @@ def main():
         endEpoch = startEpoch + args.nEpochs
         print ('Resume training at epoch: {}'.format(startEpoch))
         if os.path.exists(args.save+'train.csv'): #assume test.csv exists
+            print("Found existing train.csv")
             append_write = 'a' # append if already exists
         else:
+            print("Creating new train.csv")
             append_write = 'w' # make a new file if not
         trainF = open(os.path.join(args.save, 'train.csv'), append_write)
         testF = open(os.path.join(args.save, 'test.csv'), append_write)
     else:
-        print ("Train new model from scratch")
+        print ("Training new model from scratch")
         startEpoch = 1
         endEpoch = args.nEpochs
         trainF = open(os.path.join(args.save, 'train.csv'), 'w')
@@ -157,7 +159,7 @@ def main():
         time_elapsed = time.time() - since  
         print('Time {:.0f}m {:.0f}s\n'.format(
             time_elapsed // 60, time_elapsed % 60))
-        if epoch > 1:
+        if epoch != 1:
             os.system('./plot.py {} &'.format(args.save))
 
     trainF.close()
@@ -188,7 +190,7 @@ def train(args, epoch, net, trainLoader, optimizer, trainF):
         trainF.write('{},{},{}\n'.format(partialEpoch, loss.data[0], err))
         trainF.flush()
     save_weights(net, epoch, loss.data[0], err, args.sessionName)
-    print('Epoch: {:d}: TrainLoss: {:.6f}\tTrainError: {:.6f}'.format(epoch, loss.data[0], err))
+    print('Epoch {:d}: Train - Loss: {:.6f}\tError: {:.6f}'.format(epoch, loss.data[0], err))
 
         
 def test(args, epoch, net, testLoader, optimizer, testF):
@@ -208,7 +210,7 @@ def test(args, epoch, net, testLoader, optimizer, testF):
     test_loss /= len(testLoader) # loss function already averages over batch size
     nTotal = len(testLoader.dataset)
     err = 100.*incorrect/nTotal
-    print('TestLoss: {:.4f}, TestError: {}/{} ({:.0f}%)'.format(
+    print('Test - Loss: {:.4f}, Error: {}/{} ({:.0f}%)'.format(
         test_loss, incorrect, nTotal, err))
 
     testF.write('{},{},{}\n'.format(epoch, test_loss, err))
