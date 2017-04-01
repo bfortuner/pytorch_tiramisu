@@ -2,6 +2,8 @@ import argparse
 import torch
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
+from torch.autograd import Variable
+import torch.nn.functional as F
 import os
 import sys
 import math
@@ -9,7 +11,7 @@ import time
 import string
 import random
 import shutil
-import make_graph
+import utils.make_graph as make_graph
 
 DATA_PATH='data/'
 RESULTS_PATH='results/'
@@ -40,7 +42,7 @@ def load_weights(model, fpath):
                   weights['error']))
     return startEpoch
   
-def train(epoch, net, trainLoader, optimizer, trainF, sessionName=None):
+def train(epoch, net, trainLoader, optimizer, trainF, sessionName=get_rand_str(5)):
     net.train()
     nProcessed = 0
     nTrain = len(trainLoader.dataset)

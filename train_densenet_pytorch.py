@@ -24,6 +24,8 @@ import setproctitle
 from densenet_pytorch import DenseNet
 import utils.training as train_utils
 
+DATA_PATH='data/'
+RESULTS_PATH='results/'
 CIFAR10_PATH=DATA_PATH+'cifar10/'
 
 def main():
@@ -39,7 +41,7 @@ def main():
     parser.add_argument('--save', type=str, default=RESULTS_PATH)
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--existingWeights', type=str, default=None)
-    parser.add_argument('--sessionName', type=str, default=get_rand_str(5)) 
+    parser.add_argument('--sessionName', type=str, default=train_utils.get_rand_str(5)) 
     parser.add_argument('--opt', type=str, default='sgd',
                         choices=('sgd', 'adam', 'rmsprop'))
     
@@ -125,8 +127,8 @@ def main():
     for epoch in range(startEpoch, endEpoch+1):
         since = time.time()
         train_utils.adjust_opt(args.opt, optimizer, epoch)
-        train_utils.train(args, epoch, net, trainLoader, optimizer, trainF)
-        train_utils.test(args, epoch, net, testLoader, optimizer, testF)
+        train_utils.train(epoch, net, trainLoader, optimizer, trainF, sessionName=args.sessionName)
+        train_utils.test(epoch, net, testLoader, optimizer, testF)
         time_elapsed = time.time() - since  
         print('Time {:.0f}m {:.0f}s\n'.format(
             time_elapsed // 60, time_elapsed % 60))
