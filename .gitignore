@@ -2,5 +2,9 @@
 *.pyc
 *.h5
 .ipynb_checkpoints/
+results/*
+!/results/donotdelete.txt
 data/*
 !/data/donotdelete.txt
+weights/*
+!/weights/donotdelete.txt
