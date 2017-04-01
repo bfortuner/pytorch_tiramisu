@@ -38,7 +38,7 @@ def main():
     ax.set_yscale('log')
     loss_fname = os.path.join(args.expDir, 'loss.png')
     plt.savefig(loss_fname)
-    print('Created {}'.format(loss_fname))
+    #print('Created {}'.format(loss_fname))
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
     # plt.plot(trainI, trainErr, label='Train')
@@ -50,11 +50,11 @@ def main():
     plt.legend()
     err_fname = os.path.join(args.expDir, 'error.png')
     plt.savefig(err_fname)
-    print('Created {}'.format(err_fname))
+    #print('Created {}'.format(err_fname))
 
     loss_err_fname = os.path.join(args.expDir, 'loss-error.png')
     os.system('convert +append {} {} {}'.format(loss_fname, err_fname, loss_err_fname))
-    print('Created {}'.format(loss_err_fname))
+    #print('Created {}'.format(loss_err_fname))
 
 def rolling(N, i, loss, err):
     i_ = i[N-1:]

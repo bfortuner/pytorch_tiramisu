@@ -81,6 +81,7 @@ def main():
 
     torch.manual_seed(args.seed)
     if args.cuda:
+        print("CUDA")
         torch.cuda.manual_seed(args.seed)
 
 #    if os.path.exists(args.save):
@@ -103,6 +104,7 @@ def main():
     ])
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+    print("Kwargs: "+str(kwargs))
     trainLoader = DataLoader(
         dset.CIFAR10(root=CIFAR10_PATH, train=True, download=True,
                      transform=trainTransform),
