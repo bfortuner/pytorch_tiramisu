@@ -20,7 +20,7 @@ WEIGHTS_PATH='models/'
 def get_rand_str(n):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
-def save_weights(model, epoch, loss, err, sessionName):
+def save_weights(model, epoch, loss, err, sessionName, isBest=False):
     weights_fname = sessionName+'-%d-%.3f-%.3f.pth' % (epoch, loss, err)
     weights_fpath = os.path.join(WEIGHTS_PATH, weights_fname)
     torch.save({
@@ -31,6 +31,8 @@ def save_weights(model, epoch, loss, err, sessionName):
             'state_dict': model.state_dict()
         }, weights_fpath )
     shutil.copyfile(weights_fpath, WEIGHTS_PATH+'latest.pth')
+    if isBest:
+        shutil.copyfile(weights_fpath, WEIGHTS_PATH+'best.pth')
 
 def load_weights(model, fpath):
     print("loading weights '{}'".format(fpath))
@@ -38,10 +40,10 @@ def load_weights(model, fpath):
     startEpoch = weights['startEpoch']
     model.load_state_dict(weights['state_dict'])
     print("loaded weights from session {} (lastEpoch {}, loss {}, error {})"
-          .format(weights['sessionName'], startEpoch-1, weights['loss'], 
+          .format(weights['sessionName'], startEpoch-1, weights['loss'],
                   weights['error']))
     return startEpoch
-  
+
 def train(epoch, net, trainLoader, optimizer, trainF, sessionName=get_rand_str(5)):
     net.train()
     nProcessed = 0
@@ -66,7 +68,7 @@ def train(epoch, net, trainLoader, optimizer, trainF, sessionName=get_rand_str(5
         trainF.flush()
     save_weights(net, epoch, loss.data[0], err, sessionName)
     print('Epoch {:d}: Train - Loss: {:.6f}\tError: {:.6f}'.format(epoch, loss.data[0], err))
-    
+
 def test(epoch, net, testLoader, optimizer, testF):
     net.eval()
     test_loss = 0
