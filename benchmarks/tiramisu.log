@@ -360,3 +360,26 @@ Epoch 358 took 86+26 sec. loss = 0.14107 | jacc = 0.87896 | acc = 0.96889 || los
 Epoch 359 took 88+24 sec. loss = 0.14021 | jacc = 0.87837 | acc = 0.96899 || loss = 0.27141 | jacc = 0.74955 | acc = 0.93511
 Epoch 360 took 83+24 sec. loss = 0.13955 | jacc = 0.88086 | acc = 0.96895 || loss = 0.26533 | jacc = 0.74182 | acc = 0.93742
 Epoch 361 took 83+24 sec. loss = 0.14272 | jacc = 0.87607 | acc = 0.96799 || loss = 0.26936 | jacc = 0.75864 | acc = 0.93698
+===== INTERMISSION =====
+Epoch 0 took 82+25 sec. loss = 0.75248 | jacc = 0.47201 | acc = 0.79553 || loss = 0.63229 | jacc = 0.52208 | acc = 0.81888 (BEST)
+Epoch 0 : [test : 100%]Average cost test = 0.87415 | jacc test = 0.41467 | acc_test = 0.76544 
+Epoch 1 took 83+25 sec. loss = 0.51775 | jacc = 0.56866 | acc = 0.85952 || loss = 0.75316 | jacc = 0.51155 | acc = 0.75854
+Epoch 2 took 87+27 sec. loss = 0.45953 | jacc = 0.61521 | acc = 0.88111 || loss = 0.43686 | jacc = 0.59526 | acc = 0.88277 (BEST)
+Epoch 2 : [test : 100%]Average cost test = 0.57786 | jacc test = 0.52581 | acc_test = 0.84360 
+Epoch 3 took 84+27 sec. loss = 0.41342 | jacc = 0.63034 | acc = 0.89817 || loss = 0.48276 | jacc = 0.59196 | acc = 0.87180
+Epoch 4 took 84+27 sec. loss = 0.40582 | jacc = 0.65231 | acc = 0.90079 || loss = 0.35644 | jacc = 0.66893 | acc = 0.91684 (BEST)
+Epoch 4 : [test : 100%]Average cost test = 0.57283 | jacc test = 0.54999 | acc_test = 0.85695 
+Epoch 5 took 84+27 sec. loss = 0.36374 | jacc = 0.68196 | acc = 0.91503 || loss = 0.33620 | jacc = 0.69676 | acc = 0.92339 (BEST)
+Epoch 5 : [test : 100%]Average cost test = 0.64616 | jacc test = 0.53554 | acc_test = 0.83135 
+Epoch 6 took 84+27 sec. loss = 0.37066 | jacc = 0.68089 | acc = 0.91587 || loss = 0.40339 | jacc = 0.67144 | acc = 0.90153
+Epoch 7 took 84+27 sec. loss = 0.34489 | jacc = 0.70390 | acc = 0.92323 || loss = 0.45925 | jacc = 0.64149 | acc = 0.88778
+Epoch 8 took 84+27 sec. loss = 0.35062 | jacc = 0.69947 | acc = 0.92295 || loss = 0.38000 | jacc = 0.69408 | acc = 0.91329
+Epoch 9 took 84+27 sec. loss = 0.36848 | jacc = 0.70261 | acc = 0.91982 || loss = 0.39515 | jacc = 0.65911 | acc = 0.90052
+Epoch 10 took 85+27 sec. loss = 0.34513 | jacc = 0.71192 | acc = 0.92491 || loss = 0.62396 | jacc = 0.56636 | acc = 0.83963
+Epoch 11 took 84+27 sec. loss = 0.32650 | jacc = 0.71233 | acc = 0.93219 || loss = 0.64778 | jacc = 0.63972 | acc = 0.84534
+Epoch 12 took 88+27 sec. loss = 0.32518 | jacc = 0.72835 | acc = 0.93249 || loss = 0.36002 | jacc = 0.71821 | acc = 0.92149 (BEST)
+Epoch 12 : [test : 100%]Average cost test = 0.58999 | jacc test = 0.57274 | acc_test = 0.85886 
+Epoch 13 took 85+27 sec. loss = 0.31947 | jacc = 0.74032 | acc = 0.93594 || loss = 0.89056 | jacc = 0.51999 | acc = 0.70265
+Epoch 14 took 85+27 sec. loss = 0.34550 | jacc = 0.72350 | acc = 0.92669 || loss = 0.40682 | jacc = 0.69519 | acc = 0.90836
+Epoch 15 took 85+27 sec. loss = 0.32867 | jacc = 0.73271 | acc = 0.93248 || loss = 1.74983 | jacc = 0.46523 | acc = 0.60024
+Epoch 16 took 84+27 sec. loss = 0.33077 | jacc = 0.73261 | acc = 0.93271 || loss = 0.42175 | jacc = 0.66293 | acc = 0.90195
