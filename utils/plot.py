@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import argparse
 import os
 import numpy as np
 
@@ -9,14 +8,11 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('expDir', type=str)
-    args = parser.parse_args()
+def plot(modelName, exportPath):
+    trainP = os.path.join(exportPath, modelName+'-train.csv')
+    testP = os.path.join(exportPath, modelName+'-test.csv')
 
-    trainP = os.path.join(args.expDir, 'train.csv')
     trainData = np.loadtxt(trainP, delimiter=',').reshape(-1, 3)
-    testP = os.path.join(args.expDir, 'test.csv')
     testData = np.loadtxt(testP, delimiter=',').reshape(-1, 3)
 
     N = 392*2 # Rolling loss over the past epoch.
@@ -36,7 +32,7 @@ def main():
     plt.ylabel('Cross-Entropy Loss')
     plt.legend()
     ax.set_yscale('log')
-    loss_fname = os.path.join(args.expDir, 'loss.png')
+    loss_fname = os.path.join(exportPath, 'loss.png')
     plt.savefig(loss_fname)
     #print('Created {}'.format(loss_fname))
 
@@ -48,11 +44,11 @@ def main():
     plt.ylabel('Error')
     ax.set_yscale('log')
     plt.legend()
-    err_fname = os.path.join(args.expDir, 'error.png')
+    err_fname = os.path.join(exportPath, 'error.png')
     plt.savefig(err_fname)
-    #print('Created {}'.format(err_fname))
+    #print('Created {}'.format(err_fname
 
-    loss_err_fname = os.path.join(args.expDir, 'loss-error.png')
+    loss_err_fname = os.path.join(exportPath, 'loss-error.png')
     os.system('convert +append {} {} {}'.format(loss_fname, err_fname, loss_err_fname))
     #print('Created {}'.format(loss_err_fname))
 

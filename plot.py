@@ -12,11 +12,12 @@ plt.style.use('bmh')
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('expDir', type=str)
+    parser.add_argument('projectName', type=str)
     args = parser.parse_args()
 
-    trainP = os.path.join(args.expDir, 'train.csv')
+    trainP = os.path.join(args.expDir, args.projectName+'-train.csv')
     trainData = np.loadtxt(trainP, delimiter=',').reshape(-1, 3)
-    testP = os.path.join(args.expDir, 'test.csv')
+    testP = os.path.join(args.expDir, args.projectName+'-test.csv')
     testData = np.loadtxt(testP, delimiter=',').reshape(-1, 3)
 
     N = 392*2 # Rolling loss over the past epoch.
