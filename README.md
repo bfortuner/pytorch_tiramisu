@@ -1,81 +1,82 @@
 # One Hundred Layers Tiramisu
 PyTorch implementation of [The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for Semantic Segmentation](https://arxiv.org/pdf/1611.09326).
 
+Tiramisu (FCDenseNet) combines the DensetNet and UNet architectures for a high performance semantic segmentation model. In this repository we attempt to replicate the authors' results on the CamVid dataset.
+
 ## Setup
-Things to install and do before running
 
-## Resources
+Requires Anaconda for Python3 installed.
 
-* [Project Thread](http://forums.fast.ai/t/one-hundred-layers-tiramisu/2266)
-* [PyTorch Docs](http://pytorch.org/docs)
-* [PyTorch Tutorials](http://pytorch.org/tutorials)
-* [Fast.ai Wiki](http://wiki.fast.ai/index.php/Main_Page)
-* [Fast.ai Forums](http://forums.fast.ai)
+```
+conda create --name tiramisu python=3.6
+source activate tiramisu
+conda install pytorch torchvision -c pytorch
+```
 
-## References
+## Datasets
 
-* https://github.com/bamos/densenet.pytorch
-* https://github.com/liuzhuang13/DenseNet
+These links are old, data here is missing or still in video format. There are newer alternatives like PASAL VOC and MSCOCO, but the authors don’t provide benchmarks for these.
+
+* [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/), [Download](https://github.com/mostafaizz/camvid), [Alternative](https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid), [Pytorch DataLoader](https://github.com/pytorch/vision/pull/90)
+* [Gatech](http://www.cc.gatech.edu/cpl/projects/videogeometriccontext/)
+
+**Camvid**
+
+* TrainingSet = 367 frames
+* ValidationSet = 101 frames
+* TestSet = 233 frames
+* Images of resolution 360x480
+* Images "Cropped" to 224x224 for training --- center crop?
+* FullRes images used for finetuning
+* NumberOfClasses = 11 (output)
+* BatchSize = 3
 
 ## Architecture
 
-**FirstConvLayer**
+Tiramisu adopts the UNet architecture with downsample, bottleneck, and upsample paths with skip connections. It replaces convolution and max pooling blocks with Dense blocks from the DenseNet architecture. DenseNet include residual connections like ResNet except it concatenates, rather than sums, prior feature maps.
 
-* 3x3 Conv2D (pad=, stride=, in_chans=3, out_chans=48)
+![](docs/architecture_paper.png)
 
-**DenseLayer**
 
-* BatchNorm
-* ReLU
-* 3x3 Conv2d (pad=, stride=, in_chans=, out_chans=) - "no resolution loss" - padding included
-* Dropout (.2)
+**Layers**
 
-**DenseBlock**
+![](docs/denseblock.png)
 
-* Input = FirstConvLayer, TransitionDown, or TransitionUp
-* Loop to create L DenseLayers (L=n_layers)
-* On TransitionDown we Concat(Input, FinalDenseLayerActivation)
-* On TransitionUp we do not Concat with input, instead pass FinalDenseLayerActivation to TransitionUp block
+**FCDenseNet103**
 
-**TransitionDown**
+![](docs/fcdensenet103_arch.png)
 
-* BatchNorm
-* ReLU
-* 1x1 Conv2D (pad=, stride=, in_chans=, out_chans=)
-* Dropout (0.2)
-* 2x2 MaxPooling
+## Authors' Results
 
-**Bottleneck**
+![Authors Results on CamVid](docs/authors_results_table.png)
 
-* DenseBlock (15 layers)
+![Authors Results on CamVid](docs/authors_resuls.png)
 
-**TransitionUp**
+## Our Results
 
-* 3x3 Transposed Convolution (pad=, stride=2, in_chans=, out_chans=)
-* Concat(PreviousDenseBlock, SkipConnection) - from cooresponding DenseBlock on transition down
+**FCDenseNet67**
 
-**FinalBlock**
+I trained for 766 epochs with 50 epochs fine-tuning. The authors mention "global accuracy" of 90.8 for FC-DenseNet67 on Camvid, compared to my 86.8.
 
-* 1x1 Conv2d (pad=, stride=, in_chans=256, out_chans=n_classes)
-* Softmax
+| Dataset     | Loss  | Accuracy |
+| ----------- |:-----:| --------:|
+| Validation  | .209  | 92.5     |
+| Testset     | .435  | 86.8     |
 
-**FCDenseNet103 Architecture**
+![Our Results on CamVid](docs/fcdensenet67_trainin_error.png)
 
-* input (in_chans=3 for RGB)
-* 3x3 ConvLayer (out_chans=48)
-* DB (4 layers) + TD
-* DB (5 layers) + TD
-* DB (7 layers) + TD
-* DB (10 layers) + TD
-* DB (12 layers) + TD
-* Bottleneck (15 layers)
-* TU + DB (12 layers)
-* TU + DB (10 layers)
-* TU + DB (7 layers)
-* TU + DB (5 layers)
-* TU + DB (4 layers)
-* 1x1 ConvLayer (out_chans=n_classes) n_classes=11 for CamVid
-* Softmax
+**FCDenseNet103**
+
+| Dataset     | Loss  | Accuracy |
+| ----------- |:-----:| --------:|
+| Validation  | .209  | 92.5     |
+| Testset     | .435  | 86.8     |
+
+![Our Results on CamVid](docs/tiramisu-103-loss-error.png)
+
+**Predictions**
+
+![Our Results on CamVid](docs/example_output.png)
 
 ## Training
 
@@ -91,18 +92,9 @@ Things to install and do before running
 * Dropout = 0.2
 * BatchNorm "we use current batch stats at training, validation, and test time"
 
-**CamVid**
+## References and Links
 
-* TrainingSet = 367 frames
-* ValidationSet = 101 frames
-* TestSet = 233 frames
-* Images of resolution 360x480
-* Images "Cropped" to 224x224 for training --- center crop?
-* FullRes images used for finetuning
-* NumberOfClasses = 11 (output)
-* BatchSize = 3
-
-**FCDenseNet103**
-
-* GrowthRate = 16 (k, number of filters to each denselayer adds to the ever-growing concatenated output)
-* No pretraining
+* [Project Thread](http://forums.fast.ai/t/one-hundred-layers-tiramisu/2266)
+* [Author's Implementation](https://github.com/SimJeg/FC-DenseNet)
+* https://github.com/bamos/densenet.pytorch
+* https://github.com/liuzhuang13/DenseNet
