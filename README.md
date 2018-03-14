@@ -1,7 +1,7 @@
 # One Hundred Layers Tiramisu
 PyTorch implementation of [The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for Semantic Segmentation](https://arxiv.org/pdf/1611.09326).
 
-Tiramisu (FCDenseNet) combines the DensetNet and UNet architectures for a high performance semantic segmentation model. In this repository we attempt to replicate the authors' results on the CamVid dataset.
+Tiramisu combines [DensetNet](https://arxiv.org/abs/1608.06993) and [U-Net](https://arxiv.org/abs/1505.04597) for high performance semantic segmentation. In this repository, we attempt to replicate the authors' results on the CamVid dataset.
 
 ## Setup
 
@@ -15,25 +15,23 @@ conda install pytorch torchvision -c pytorch
 
 ## Datasets
 
-These links are old, data here is missing or still in video format. There are newer alternatives like PASAL VOC and MSCOCO, but the authors don’t provide benchmarks for these.
+Download
 
-* [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/), [Download](https://github.com/mostafaizz/camvid), [Alternative](https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid), [Pytorch DataLoader](https://github.com/pytorch/vision/pull/90)
-* [Gatech](http://www.cc.gatech.edu/cpl/projects/videogeometriccontext/)
+* [CamVid Website](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
+* [Download](https://github.com/mostafaizz/camvid)
+* [Alternative Download](https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid), 
 
-**Camvid**
+Details
 
-* TrainingSet = 367 frames
-* ValidationSet = 101 frames
-* TestSet = 233 frames
-* Images of resolution 360x480
-* Images "Cropped" to 224x224 for training --- center crop?
-* FullRes images used for finetuning
-* NumberOfClasses = 11 (output)
-* BatchSize = 3
+* Training: 367 frames
+* Validation: 101 frames
+* TestSet: 233 frames
+* Dimensions: 360x480
+* Classes = 11
 
 ## Architecture
 
-Tiramisu adopts the UNet architecture with downsample, bottleneck, and upsample paths with skip connections. It replaces convolution and max pooling blocks with Dense blocks from the DenseNet architecture. DenseNet include residual connections like ResNet except it concatenates, rather than sums, prior feature maps.
+Tiramisu adopts the UNet design with downsampling, bottleneck, and upsampling paths and skip connections. It replaces convolution and max pooling layers with Dense blocks from the DenseNet architecture. Dense blocks contain residual connections like in ResNet except they concatenate, rather than sum, prior feature maps.
 
 ![](docs/architecture_paper.png)
 
