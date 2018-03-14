@@ -27,7 +27,7 @@ Details
 * Validation: 101 frames
 * TestSet: 233 frames
 * Dimensions: 360x480
-* Classes = 11
+* Classes: 11
 
 ## Architecture
 
@@ -54,7 +54,7 @@ Tiramisu adopts the UNet design with downsampling, bottleneck, and upsampling pa
 
 **FCDenseNet67**
 
-I trained for 766 epochs with 50 epochs fine-tuning. The authors mention "global accuracy" of 90.8 for FC-DenseNet67 on Camvid, compared to my 86.8.
+We trained for 766 epochs (224x224 crops) with 50 epochs fine-tuning (full-size images). The authors mention "global accuracy" of 90.8 for FC-DenseNet67 on Camvid, compared to our 86.8. If we exclude the 'background' class, accuracy increases to ~89%. We think the authors did this, but haven't confirmed. 
 
 | Dataset     | Loss  | Accuracy |
 | ----------- |:-----:| --------:|
@@ -65,10 +65,12 @@ I trained for 766 epochs with 50 epochs fine-tuning. The authors mention "global
 
 **FCDenseNet103**
 
+We trained for 874 epochs with 50 epochs fine-tuning.
+
 | Dataset     | Loss  | Accuracy |
 | ----------- |:-----:| --------:|
-| Validation  | .209  | 92.5     |
-| Testset     | .435  | 86.8     |
+| Validation  | .178  | 92.8     |
+| Testset     | .441  | 86.6     |
 
 ![Our Results on CamVid](docs/tiramisu-103-loss-error.png)
 
