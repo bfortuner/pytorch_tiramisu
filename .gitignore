@@ -9,3 +9,5 @@ data/*
 !/data/donotdelete.txt
 models/*
 !/models/donotdelete.txt
+.DS_Store
+._.DS_Store
