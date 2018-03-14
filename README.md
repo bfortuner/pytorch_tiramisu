@@ -19,7 +19,7 @@ Download
 
 * [CamVid Website](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
 * [Download](https://github.com/mostafaizz/camvid)
-* [Alternative Download](https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid), 
+* [Alternate Download](https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid)
 
 Details
 
@@ -54,7 +54,7 @@ Tiramisu adopts the UNet design with downsampling, bottleneck, and upsampling pa
 
 **FCDenseNet67**
 
-We trained for 766 epochs (224x224 crops) with 50 epochs fine-tuning (full-size images). The authors mention "global accuracy" of 90.8 for FC-DenseNet67 on Camvid, compared to our 86.8. If we exclude the 'background' class, accuracy increases to ~89%. We think the authors did this, but haven't confirmed. 
+We trained for 670 epochs (224x224 crops) with 100 epochs fine-tuning (full-size images). The authors mention "global accuracy" of 90.8 for FC-DenseNet67 on Camvid, compared to our 86.8. If we exclude the 'background' class, accuracy increases to ~89%. We think the authors did this, but haven't confirmed. 
 
 | Dataset     | Loss  | Accuracy |
 | ----------- |:-----:| --------:|
