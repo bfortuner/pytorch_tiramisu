@@ -1,101 +1,127 @@
-import argparse
+import os
+import sys
+import math
+import string
+import random
+import shutil
+
 import torch
+import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
 from torch.autograd import Variable
 import torch.nn.functional as F
-import os
-import sys
-import math
-import time
-import string
-import random
-import shutil
-import utils.make_graph as make_graph
 
-DATA_PATH='data/'
-RESULTS_PATH='results/'
-WEIGHTS_PATH='models/'
+from . import imgs as img_utils
 
-def get_rand_str(n):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
+RESULTS_PATH = '.results/'
+WEIGHTS_PATH = '.weights/'
 
-def save_weights(model, epoch, loss, err, sessionName, isBest=False):
-    weights_fname = sessionName+'-%d-%.3f-%.3f.pth' % (epoch, loss, err)
+
+def save_weights(model, epoch, loss, err):
+    weights_fname = 'weights-%d-%.3f-%.3f.pth' % (epoch, loss, err)
     weights_fpath = os.path.join(WEIGHTS_PATH, weights_fname)
     torch.save({
-            'startEpoch': epoch+1,
+            'startEpoch': epoch,
             'loss':loss,
             'error': err,
-            'sessionName': sessionName,
             'state_dict': model.state_dict()
-        }, weights_fpath )
-    shutil.copyfile(weights_fpath, WEIGHTS_PATH+'latest.pth')
-    if isBest:
-        shutil.copyfile(weights_fpath, WEIGHTS_PATH+'best.pth')
+        }, weights_fpath)
+    shutil.copyfile(weights_fpath, WEIGHTS_PATH+'latest.th')
 
 def load_weights(model, fpath):
     print("loading weights '{}'".format(fpath))
     weights = torch.load(fpath)
     startEpoch = weights['startEpoch']
     model.load_state_dict(weights['state_dict'])
-    print("loaded weights from session {} (lastEpoch {}, loss {}, error {})"
-          .format(weights['sessionName'], startEpoch-1, weights['loss'],
-                  weights['error']))
+    print("loaded weights (lastEpoch {}, loss {}, error {})"
+          .format(startEpoch-1, weights['loss'], weights['error']))
     return startEpoch
 
-def train(epoch, net, trainLoader, optimizer, trainF, sessionName=get_rand_str(5)):
-    net.train()
-    nProcessed = 0
-    nTrain = len(trainLoader.dataset)
-    for batch_idx, (data, target) in enumerate(trainLoader):
-        data, target = Variable(data.cuda()), Variable(target.cuda())
+def get_predictions(output_batch):
+    bs,c,h,w = output_batch.size()
+    tensor = output_batch.data
+    values, indices = tensor.cpu().max(1)
+    indices = indices.view(bs,h,w)
+    return indices
+
+def error(preds, targets):
+    assert preds.size() == targets.size()
+    bs,h,w = preds.size()
+    n_pixels = bs*h*w
+    incorrect = preds.ne(targets).cpu().sum()
+    err = incorrect/n_pixels
+    return round(err,5)
+
+def train(model, trn_loader, optimizer, criterion, epoch):
+    model.train()
+    trn_loss = 0
+    trn_error = 0
+    for idx, data in enumerate(trn_loader):
+        inputs = Variable(data[0].cuda())
+        targets = Variable(data[1].cuda())
+
         optimizer.zero_grad()
-        output = net(data)
-        loss = F.nll_loss(output, target)
-        # make_graph.save('/tmp/t.dot', loss.creator); assert(False)
+        output = model(inputs)
+        loss = criterion(output, targets)
         loss.backward()
         optimizer.step()
-        nProcessed += len(data)
-        pred = output.data.max(1)[1] # get the index of the max log-probability
-        incorrect = pred.ne(target.data).cpu().sum()
-        err = 100.*incorrect/len(data)
-        partialEpoch = epoch + batch_idx / len(trainLoader) - 1
-#        print('Train Epoch: {:.2f} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tError: {:.6f}'.format(
-#            partialEpoch, nProcessed, nTrain, 100. * batch_idx / len(trainLoader),
-#            loss.data[0], err))
-        trainF.write('{},{},{}\n'.format(partialEpoch, loss.data[0], err))
-        trainF.flush()
-    save_weights(net, epoch, loss.data[0], err, sessionName)
-    print('Epoch {:d}: Train - Loss: {:.6f}\tError: {:.6f}'.format(epoch, loss.data[0], err))
 
-def test(epoch, net, testLoader, optimizer, testF):
-    net.eval()
+        trn_loss += loss.data[0]
+        pred = get_predictions(output)
+        trn_error += error(pred, targets.data.cpu())
+
+    trn_loss /= len(trn_loader)
+    trn_error /= len(trn_loader)
+    return trn_loss, trn_error
+
+def test(model, test_loader, criterion, epoch=1):
+    model.eval()
     test_loss = 0
-    incorrect = 0
-    for data, target in testLoader:
-        data, target = Variable(data.cuda(), volatile=True), Variable(target.cuda())
-        output = net(data)
-        test_loss += F.nll_loss(output, target).data[0]
-        pred = output.data.max(1)[1] # get the index of the max log-probability
-        incorrect += pred.ne(target.data).cpu().sum()
+    test_error = 0
+    for data, target in test_loader:
+        data = Variable(data.cuda(), volatile=True)
+        target = Variable(target.cuda())
+        output = model(data)
+        test_loss += criterion(output, target).data[0]
+        pred = get_predictions(output)
+        test_error += error(pred, target.data.cpu())
+    test_loss /= len(test_loader)
+    test_error /= len(test_loader)
+    return test_loss, test_error
 
-    test_loss = test_loss
-    test_loss /= len(testLoader) # loss function already averages over batch size
-    nTotal = len(testLoader.dataset)
-    err = 100.*incorrect/nTotal
-    print('Test - Loss: {:.4f}, Error: {}/{} ({:.0f}%)'.format(
-        test_loss, incorrect, nTotal, err))
+def adjust_learning_rate(lr, decay, optimizer, cur_epoch, n_epochs):
+    """Sets the learning rate to the initially
+        configured `lr` decayed by `decay` every `n_epochs`"""
+    new_lr = lr * (decay ** (cur_epoch // n_epochs))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = new_lr
 
-    testF.write('{},{},{}\n'.format(epoch, test_loss, err))
-    testF.flush()
+def weights_init(m):
+    if isinstance(m, nn.Conv2d):
+        nn.init.kaiming_uniform(m.weight)
+        m.bias.data.zero_()
 
-def adjust_opt(optAlg, optimizer, epoch):
-    if optAlg == 'sgd':
-        if epoch < 150: lr = 1e-1
-        elif epoch == 150: lr = 1e-2
-        elif epoch == 225: lr = 1e-3
-        else: return
+def predict(model, input_loader, n_batches=1):
+    input_loader.batch_size = 1
+    predictions = []
+    model.eval()
+    for input, target in input_loader:
+        data = Variable(input.cuda(), volatile=True)
+        label = Variable(target.cuda())
+        output = model(data)
+        pred = get_predictions(output)
+        predictions.append([input,target,pred])
+    return predictions
 
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
+def view_sample_predictions(model, loader, n):
+    inputs, targets = next(iter(loader))
+    data = Variable(inputs.cuda(), volatile=True)
+    label = Variable(targets.cuda())
+    output = model(data)
+    pred = get_predictions(output)
+    batch_size = inputs.size(0)
+    for i in range(min(n, batch_size)):
+        img_utils.view_image(inputs[i])
+        img_utils.view_annotated(targets[i])
+        img_utils.view_annotated(pred[i])

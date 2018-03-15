@@ -3,11 +3,7 @@ __pycache__
 *.pyc
 *.h5
 .ipynb_checkpoints/
-results/*
-!/results/donotdelete.txt
-data/*
-!/data/donotdelete.txt
-models/*
-!/models/donotdelete.txt
+.results
+.weights
 .DS_Store
 ._.DS_Store
