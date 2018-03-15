@@ -13,21 +13,22 @@ source activate tiramisu
 conda install pytorch torchvision -c pytorch
 ```
 
-## Datasets
+The ```train.ipynb``` notebook shows a basic train/test workflow.
+
+## Dataset
 
 Download
 
 * [CamVid Website](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
-* [Download](https://github.com/mostafaizz/camvid)
-* [Alternate Download](https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid)
+* [Download](https://github.com/alexgkendall/SegNet-Tutorial/tree/master/CamVid)
 
-Details
+Specs
 
 * Training: 367 frames
 * Validation: 101 frames
 * TestSet: 233 frames
 * Dimensions: 360x480
-* Classes: 11
+* Classes: 11 (+1 background)
 
 ## Architecture
 
