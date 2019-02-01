@@ -1,14 +1,24 @@
+"""
+    100-layer tiramisu/fc densenet67 model definition
+"""
+
 import torch
 import torch.nn as nn
+from torchvision import transforms
 
-from .layers import *
+from .layers import DenseBlock, TransitionDown, TransitionUp, Bottleneck
+from .joint_transforms import JointRandomResizedCrop, JointRandomHorizontalFlip, JointCompose, LabelToLongTensor
 
+__all__ = ['FCDenseNet57', 'FCDenseNet67', 'FCDenseNet103']
 
 class FCDenseNet(nn.Module):
     def __init__(self, in_channels=3, down_blocks=(5,5,5,5,5),
                  up_blocks=(5,5,5,5,5), bottleneck_layers=5,
-                 growth_rate=16, out_chans_first_conv=48, n_classes=12):
+                 growth_rate=16, out_chans_first_conv=48, num_classes=11):
         super().__init__()
+
+        self.num_classes = num_classes
+
         self.down_blocks = down_blocks
         self.up_blocks = up_blocks
         cur_channels_count = 0
@@ -70,12 +80,9 @@ class FCDenseNet(nn.Module):
                 upsample=False))
         cur_channels_count += growth_rate*up_blocks[-1]
 
-        ## Softmax ##
-
         self.finalConv = nn.Conv2d(in_channels=cur_channels_count,
-               out_channels=n_classes, kernel_size=1, stride=1,
+               out_channels=num_classes, kernel_size=1, stride=1,
                    padding=0, bias=True)
-        self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
         out = self.firstconv(x)
@@ -93,26 +100,100 @@ class FCDenseNet(nn.Module):
             out = self.denseBlocksUp[i](out)
 
         out = self.finalConv(out)
-        out = self.softmax(out)
+
         return out
 
 
-def FCDenseNet57(n_classes):
-    return FCDenseNet(
-        in_channels=3, down_blocks=(4, 4, 4, 4, 4),
-        up_blocks=(4, 4, 4, 4, 4), bottleneck_layers=4,
-        growth_rate=12, out_chans_first_conv=48, n_classes=n_classes)
+class FCDenseNet57:
+    base = FCDenseNet
+    args = list()
+    kwargs = {'in_channels':3, 'down_blocks':(4, 4, 4, 4, 4),
+            'up_blocks':(4, 4, 4, 4, 4), 'bottleneck_layers':4,
+            'growth_rate':12, 'out_chans_first_conv':48}
 
+    camvid_mean = [0.41189489566336, 0.4251328133025, 0.4326707089857]
+    camvid_std = [0.27413549931506, 0.28506257482912, 0.28284674400252]
 
-def FCDenseNet67(n_classes):
-    return FCDenseNet(
-        in_channels=3, down_blocks=(5, 5, 5, 5, 5),
-        up_blocks=(5, 5, 5, 5, 5), bottleneck_layers=5,
-        growth_rate=16, out_chans_first_conv=48, n_classes=n_classes)
+    transform_train = transforms.Compose([
+          transforms.ToTensor(),
+          transforms.Normalize(mean=camvid_mean, std=camvid_std),
+    ])
+    transform_test =  transforms.Compose([
+          transforms.ToTensor(),
+          transforms.Normalize(mean=camvid_mean, std=camvid_std),
+    ])
 
+    joint_transform = JointCompose([
+        JointRandomResizedCrop(224), # commented for fine-tuning
+        JointRandomHorizontalFlip()
+    ])
+    ft_joint_transform = JointCompose([
+        JointRandomHorizontalFlip()
+    ])
+    target_transform = transforms.Compose([
+        LabelToLongTensor(),
+    ])
 
-def FCDenseNet103(n_classes):
-    return FCDenseNet(
-        in_channels=3, down_blocks=(4,5,7,10,12),
-        up_blocks=(12,10,7,5,4), bottleneck_layers=15,
-        growth_rate=16, out_chans_first_conv=48, n_classes=n_classes)
+class FCDenseNet67:
+    base = FCDenseNet
+    args = list()
+
+    kwargs = {'in_channels':3, 'down_blocks':(5, 5, 5, 5, 5),
+            'up_blocks':(5, 5, 5, 5, 5), 'bottleneck_layers':5,
+            'growth_rate':16, 'out_chans_first_conv':48}
+
+    camvid_mean = [0.41189489566336, 0.4251328133025, 0.4326707089857]
+    camvid_std = [0.27413549931506, 0.28506257482912, 0.28284674400252]
+
+    transform_train = transforms.Compose([
+          transforms.ToTensor(),
+          #transforms.Normalize(mean=camvid_mean, std=camvid_std),
+    ])
+    transform_test =  transforms.Compose([
+          transforms.ToTensor(),
+          #transforms.Normalize(mean=camvid_mean, std=camvid_std),
+    ])
+
+    joint_transform = JointCompose([
+        JointRandomResizedCrop(224), # commented for fine-tuning
+        JointRandomHorizontalFlip()
+    ])
+    ft_joint_transform = JointCompose([
+        JointRandomHorizontalFlip()
+    ])
+
+    target_transform = transforms.Compose([
+        LabelToLongTensor(),
+    ])
+
+class FCDenseNet103:
+    base = FCDenseNet
+    args = list()
+
+    kwargs = {'in_channels':3, 'down_blocks':(4,5,7,10,12),
+            'up_blocks':(12,10,7,5,4), 'bottleneck_layers':15,
+            'growth_rate':16, 'out_chans_first_conv':48}
+
+    camvid_mean = [0.41189489566336, 0.4251328133025, 0.4326707089857]
+    camvid_std = [0.27413549931506, 0.28506257482912, 0.28284674400252]
+
+    transform_train = transforms.Compose([
+          transforms.ToTensor(),
+          #transforms.Normalize(mean=camvid_mean, std=camvid_std),
+    ])
+    transform_test =  transforms.Compose([
+          transforms.ToTensor(),
+          #transforms.Normalize(mean=camvid_mean, std=camvid_std),
+    ])
+
+    joint_transform = JointCompose([
+        JointRandomResizedCrop(224), # commented for fine-tuning
+        JointRandomHorizontalFlip()
+    ])
+    ft_joint_transform = JointCompose([
+        JointRandomHorizontalFlip()
+    ])
+
+    target_transform = transforms.Compose([
+        LabelToLongTensor(),
+    ])
