@@ -140,6 +140,15 @@ class JointRandomHorizontalFlip(object):
             segmentation = TF.hflip(segmentation)
         return image, segmentation
 
+class JointRandomVerticalFlip(object):
+    """Randomly vertically flip the given list of PIL.Image with a probability of 0.5
+    """
+    def __call__(self, image, segmentation):
+        if random.random() < 0.5:
+            image = TF.vflip(image)
+            segmentation = TF.vflip(segmentation)
+        return image, segmentation
+        
 class LabelToLongTensor(object):
     def __call__(self, pic):
         if isinstance(pic, np.ndarray):

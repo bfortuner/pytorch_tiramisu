@@ -45,6 +45,7 @@ parser.add_argument('--num_workers', type=int, default=4, metavar='N', help='num
 
 parser.add_argument('--ft_start', type=int, default=750, help='begin fine-tuning with full sized images (default: 750)')
 parser.add_argument('--ft_batch_size', type=int, default=1, help='fine-tuning batch size (default: 1)')
+parser.add_argument('--ft_lr', type=float, default=1e-3, help='fine-tuning learning rate for RMSProp')
 
 parser.add_argument('--resume', type=str, default=None, metavar='CKPT',
                     help='checkpoint to resume training from (default: None)')
@@ -152,7 +153,8 @@ for epoch in range(start_epoch, args.epochs+1):
         if epoch < args.ft_start:
             scheduler.step(epoch=epoch)
         else:
-            scheduler.step(epoch=-1) #reset to args.lr_init for fine-tuning
+            #scheduler.step(epoch=-1) #reset to args.lr_init for fine-tuning
+            train_utils.adjust_learning_rate(optimizer, args.ft_lr)
         
     elif args.optimizer=='SGD':
         lr = train_utils.schedule(epoch, args.lr_init, args.epochs)
